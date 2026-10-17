@@ -16,18 +16,4 @@ This repository contains six JavaScript practice assignments and the capstone mi
 - Assignment 2 uses `prompt()`. Open `Assignment_2_Operators.html` in a browser and check the developer console.
 - For the capstone, open `Capstone_Product_Inventory.html` in a browser. Add products and change the tax rate to test it.
 
-## Before submitting
-- Read the trainer's full assessment guidelines and confirm the deadline and required evidence.
-- Run each program yourself and understand what it does.
-- Take screenshots of code and output if requested by the trainer.
-- Replace example data or adjust formatting only if your trainer instructs you to.
-- Submit this GitHub repository link using the submission method confirmed by EWB.
 
-## Upload to GitHub
-1. Sign in to GitHub and create a new **public** repository named `EWB-JavaScript-Internship` (unless your trainer specifies another visibility).
-2. On the new repository page, choose **Add file → Upload files**.
-3. Upload the files in this folder. You can upload the files together; keep the filenames unchanged.
-4. Select **Commit changes** and confirm.
-5. Copy the repository URL, which looks like `https://github.com/YOUR-USERNAME/EWB-JavaScript-Internship`, and submit that URL to your trainer.
-
-Do not include passwords, personal identification documents, or other private information in the repository.

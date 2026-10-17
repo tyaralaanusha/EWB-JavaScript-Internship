@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Product Inventory & Analytics Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    h1 { color: #174ea6; }
+    form { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1rem 0; }
+    input, button { padding: .65rem; font-size: 1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: .7rem; text-align: left; }
+    th { background: #eef3fd; }
+    .summary { background: #f4f7fb; padding: 1rem; border-radius: 8px; }
+    #message { min-height: 1.5em; color: #a12622; }
+  </style>
+</head>
+<body>
+  <h1>Interactive Product Inventory & Analytics Dashboard</h1>
+  <p>Add a product to view inventory categories, total value, and affordable products.</p>
+
+  <form id="productForm">
+    <input id="productName" type="text" placeholder="Product name" aria-label="Product name" required>
+    <input id="productPrice" type="number" placeholder="Price" aria-label="Product price" min="0.01" step="0.01" required>
+    <button type="submit">Add Product</button>
+  </form>
+  <p id="message" role="status"></p>
+
+  <div class="summary">
+    <p><strong>Total Inventory Value:</strong> <span id="totalValue">$0.00</span></p>
+    <p><strong>Tax rate:</strong> <input id="taxRate" type="number" min="0" max="100" step="1" value="0" style="width:5rem"> %</p>
+    <p><strong>Value including tax:</strong> <span id="taxValue">$0.00</span></p>
+  </div>
+
+  <h2>Inventory Roster</h2>
+  <table>
+    <thead><tr><th>Product</th><th>Price</th><th>Category</th></tr></thead>
+    <tbody id="inventoryBody"></tbody>
+  </table>
+
+  <h2>Affordable Products (Under $200)</h2>
+  <ul id="affordableList"></ul>
+
+  <h2>Formatted Report</h2>
+  <ul id="reportList"></ul>
+
+  <script>
+    "use strict";
+
+    const inventory = [
+      { name: "Laptop", price: 800 },
+      { name: "Mouse", price: 25 }
+    ];
+
+    const money = amount => `$${amount.toFixed(2)}`;
+
+    function getCategory(price) {
+      if (price < 50) {
+        return "Budget";
+      } else if (price < 200) {
+        return "Standard";
+      }
+
+      // switch is used to assign a category badge from the price band.
+      const band = price >= 200 ? "premium" : "standard";
+      switch (band) {
+        case "premium": return "Premium";
+        case "standard": return "Standard";
+        default: return "Uncategorized";
+      }
+    }
+
+    function calculateTotal(items = inventory) {
+      let total = 0;
+      for (const item of items) {
+        if (!Number.isFinite(item.price) || item.price < 0) continue;
+        total += item.price;
+      }
+      return total;
+    }
+
+    const calculateWithTax = (amount, taxPercent = 0) =>
+      amount + amount * taxPercent / 100;
+
+    function renderInventory() {
+      const inventoryBody = document.getElementById("inventoryBody");
+      const affordableList = document.getElementById("affordableList");
+      const reportList = document.getElementById("reportList");
+      inventoryBody.replaceChildren();
+      affordableList.replaceChildren();
+      reportList.replaceChildren();
+
+      inventory.forEach(item => {
+        const row = document.createElement("tr");
+        [item.name, money(item.price), getCategory(item.price)].forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        inventoryBody.appendChild(row);
+      });
+
+      const affordable = inventory.filter(item => item.price < 200);
+      affordable.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item.name;
+        affordableList.appendChild(li);
+      });
+
+      const report = inventory.map(item => `${item.name.toUpperCase()}: ${money(item.price)}`);
+      report.forEach(line => {
+        const li = document.createElement("li");
+        li.textContent = line;
+        reportList.appendChild(li);
+      });
+
+      const total = calculateTotal();
+      document.getElementById("totalValue").textContent = money(total);
+      const taxRate = Number(document.getElementById("taxRate").value);
+      document.getElementById("taxValue").textContent =
+        money(calculateWithTax(total, Number.isFinite(taxRate) ? taxRate : 0));
+    }
+
+    document.getElementById("productForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const nameInput = document.getElementById("productName");
+      const priceInput = document.getElementById("productPrice");
+      const name = nameInput.value.trim();
+      const price = Number(priceInput.value);
+      const message = document.getElementById("message");
+
+      if (!name || !priceInput.value || !Number.isFinite(price) || price <= 0) {
+        message.textContent = "Enter a product name and a price greater than zero.";
+        return;
+      }
+
+      inventory.push({ name, price });
+      message.textContent = "";
+      nameInput.value = "";
+      priceInput.value = "";
+      renderInventory();
+    });
+
+    document.getElementById("taxRate").addEventListener("input", renderInventory);
+    renderInventory();
+  </script>
+</body>
+</html>
